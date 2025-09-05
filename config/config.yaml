@@ -1,11 +1,9 @@
 # Configuration for the audio and LLM processing pipeline
 
 paths:
-  audio_dir: /root/autodl-tmp/audio   # Input audio sets directory
+  audio_dir: /kaggle/input/up366-audio/audio   # Input audio sets directory
   output_dir: ./output                # Main output directory for text files
   temp_dir: ./temp                    # Temporary directory for intermediate files
-  image_dir: ./image                  # Input image directory
-  ans_text: ./ans.txt                 # Final answer file from LLM
   nemo_yaml: diar_infer_general.yaml  # NeMo diarization config
 
 processing:
@@ -15,9 +13,3 @@ audio_processing:
   gender_model: alefiury/wav2vec2-large-xlsr-53-gender-recognition-librispeech
   whisper_model: small.en
 
-llm:
-  # IMPORTANT: It is strongly recommended to use an environment variable for the API key.
-  # If the key is not found here, the script will try to get it from the OPENAI_API_KEY environment variable.
-  api_key: "sk-123456"  # Replace with your real key or leave it blank to use environment variable.
-  base_url: "http://172.28.80.202:8000/v1" # Optional: for custom endpoints. Remove if using official OpenAI.
-  model: gemini-2.5-pro
