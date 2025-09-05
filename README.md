@@ -6,7 +6,7 @@ wangdog's up366 audio processor for kaggle
 
 在Notebook中挂载数据集，逐条运行up366-processor.ipynb中的命令
 
-下载/kaggle/working/up366/output.tar.xz
+下载/kaggle/working/output.tar.xz
 
 
 
