@@ -1,0 +1,2 @@
+如遇网络问题请设置使用hf镜像站
+# export HF_ENDPOINT=https://hf-mirror.com
