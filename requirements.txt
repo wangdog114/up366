@@ -3,7 +3,7 @@ torchaudio
 pyyaml
 omegaconf
 tqdm
-nemo-toolkit[asr]==2.2.1 
+nemo-toolkit[asr] 
 openai-whisper
 transformers
 soundfile
