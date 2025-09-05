@@ -1,8 +1,0 @@
-pyyaml
-omegaconf
-tqdm
-nemo-toolkit[asr] 
-openai-whisper
-transformers
-soundfile
-librosa
