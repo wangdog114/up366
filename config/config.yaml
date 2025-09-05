@@ -2,7 +2,7 @@
 
 paths:
   audio_dir: /kaggle/input/up366-audio/audio   # Input audio sets directory
-  output_dir: ./output                # Main output directory for text files
+  output_dir: /kaggle/working/up366/output                # Main output directory for text files
   temp_dir: ./temp                    # Temporary directory for intermediate files
   nemo_yaml: diar_infer_general.yaml  # NeMo diarization config
 
