@@ -1,3 +1,3 @@
 # up366
-wangdog's up366 audio processor
+wangdog's up366 audio processor for kaggle
 
