@@ -1,6 +1,5 @@
 torch
 torchaudio
-openai
 pyyaml
 omegaconf
 tqdm
