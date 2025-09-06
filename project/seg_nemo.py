@@ -49,7 +49,7 @@ def parse_rttm_2(rttm_path):
 def assign_speaker(diar, start, end):
     for s, e, spk in diar:
         overlap = max(0, min(e, end) - max(s, start))
-        if overlap >= (end - start) * 0.6:
+        if overlap >= (end - start) * 0.5:
             return spk
     return None
 
