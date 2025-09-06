@@ -123,9 +123,9 @@ def process_audio_set(playlist_path, manifest_path, output_text_path, temp_dir, 
                 inputs = {k: v.to(model.device) for k, v in inputs.items()}
                 with torch.no_grad():
                     logits = model(**inputs).logits
-                    probs = torch.softmax(logits, dim=1)[0].cpu().numpy()
-                    # print(f"female: {probs[0]:.4f}, male: {probs[1]:.4f}, preds: {model.config.id2label[int(probs.argmax())]}")
-                    speaker_gender[fn][os.path.splitext(speaker_num)[0]] = model.config.id2label[int(probs.argmax())]
+                    probs = torch.softmax(logits, dim=1)[0]
+                    # print(f"female: {probs[0]:.4f}, male: {probs[1]:.4f}, preds: {model.config.id2label[probs.argmax().item()]}")
+                    speaker_gender[fn][os.path.splitext(speaker_num)[0]] = model.config.id2label[probs.argmax().item()]
             
             rttm = os.path.join(temp_dir, fn.replace(".wav", ".rttm"))
             diar = parse_rttm_2(rttm)
