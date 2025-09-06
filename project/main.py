@@ -91,8 +91,7 @@ def worker(gpu_id, audio_sets_chunk):
             print(f"GPU {gpu_id} 在处理 {set_name} 时失败: {e}")
 
 if __name__ == "__main__":
-    # 设置多进程启动方法为 'spawn'，这在CUDA上更稳定
-    multiprocessing.set_start_method('spawn', force=True)
+    multiprocessing.set_start_method('fork', force=True)
 
     if not os.path.isdir(AUDIO_DIR):
         print(f"错误：音频目录不存在: {AUDIO_DIR}")
