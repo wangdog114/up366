@@ -7,6 +7,8 @@ from tqdm import tqdm
 from build_manifest import build_manifest
 from seg_nemo import process_audio_set
 from config_loader import config
+import torch
+import multiprocessing
 
 # 从配置文件读取路径和设置
 paths_config = config['paths']
@@ -74,17 +76,58 @@ def process_one_set(set_name, input_set_dir):
         shutil.rmtree(temp_set_dir)
         print(f"临时文件已清理: {temp_set_dir}")
 
+def worker(gpu_id, audio_sets_chunk):
+    """每个进程的工作函数，负责处理一部分音频集"""
+    # 关键：为当前进程设置可见的GPU
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu_id)
+    
+    print(f"工作进程启动，使用 GPU {gpu_id} 处理 {len(audio_sets_chunk)} 个音频集。")
+    
+    for set_name in tqdm(audio_sets_chunk, desc=f"GPU {gpu_id} 进度"):
+        input_set_dir = os.path.join(AUDIO_DIR, set_name)
+        try:
+            process_one_set(set_name, input_set_dir)
+        except Exception as e:
+            print(f"GPU {gpu_id} 在处理 {set_name} 时失败: {e}")
 
 if __name__ == "__main__":
+    # 设置多进程启动方法为 'spawn'，这在CUDA上更稳定
+    multiprocessing.set_start_method('spawn', force=True)
+
     if not os.path.isdir(AUDIO_DIR):
         print(f"错误：音频目录不存在: {AUDIO_DIR}")
         print("请检查 config.yaml 文件中的 'audio_dir' 配置。" )
     else:
-        audio_sets = [d for d in os.listdir(AUDIO_DIR) if os.path.isdir(os.path.join(AUDIO_DIR, d))]
-        for set_name in tqdm(audio_sets, desc="处理音频集"):
-            input_set_dir = os.path.join(AUDIO_DIR, set_name)
-            try:
-                process_one_set(set_name, input_set_dir)
-            except Exception as e:
-                print(f"处理 {set_name} 失败: {e}")
+        all_audio_sets = [d for d in os.listdir(AUDIO_DIR) if os.path.isdir(os.path.join(AUDIO_DIR, d))]
+        
+        num_gpus = torch.cuda.device_count()
+        
+        if num_gpus < 2:
+            print("检测到少于2个GPU，将在单个设备上顺序执行。")
+            for set_name in tqdm(all_audio_sets, desc="处理音频集"):
+                input_set_dir = os.path.join(AUDIO_DIR, set_name)
+                try:
+                    process_one_set(set_name, input_set_dir)
+                except Exception as e:
+                    print(f"处理 {set_name} 失败: {e}")
+        else:
+            print(f"检测到 {num_gpus} 个GPU，开始并行处理...")
+            
+            # 将任务列表分割成块
+            chunk_size = (len(all_audio_sets) + num_gpus - 1) // num_gpus
+            chunks = [all_audio_sets[i:i + chunk_size] for i in range(0, len(all_audio_sets), chunk_size)]
+            
+            processes = []
+            for i, chunk in enumerate(chunks):
+                if not chunk:
+                    continue
+                # 为每个GPU创建一个进程
+                p = multiprocessing.Process(target=worker, args=(i, chunk))
+                processes.append(p)
+                p.start()
+            
+            # 等待所有进程完成
+            for p in processes:
+                p.join()
+
         print(f"所有音频集处理完成！输出在 {OUTPUT_DIR} 下。")
